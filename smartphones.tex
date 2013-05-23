@@ -6,197 +6,56 @@
   \end{center}
 \end{frame}
 
-
-\begin{frame}{Smartphones}
+\begin{frame}{Why care?}
+\begin{columns}
+  \column{200pt}
   \begin{itemize}
-	  \item immer dabei
-	  \item sammeln viele Daten über Benutzer und Umgebung
+	  \item<2-> immer dabei
+	  \item<3-> speichern bzw. sammeln viele Daten \\ über Benutzer und Umgebung
 	  \begin{itemize}
-	  \item Standort
-	  \item Anruflisten
-	  \item Kontakte
-	  \item Email
-	  \item SMS
-	  \item Logins (Facebook, Whatsapp, etc)
-	  \item Fotos/Videos, auch Thumbnails
-	  \item Browserverlauf
-	  \item ...
+		  \item Standort
+		  \item Anruflisten
+		  \item Kontakte
+		  \item Email, SMS
+		  \item Logins (Facebook, Whatsapp, etc)
+		  \item Fotos/Videos, auch Thumbnails
+		  \item Browserverlauf
+		  \item ...
 	  \end{itemize}
   \end{itemize}
-
+   \column{150pt}
+   		\includegraphics<1>[height=3cm]{mobile_security_cares.jpg}
+  	  	\includegraphics<2>[height=5cm]{smartphone_always_with_you.jpg}
+  	  	\includegraphics<3>[height=3cm]{locationgate.jpg}
+\end{columns}
 \end{frame}
 
 \begin{frame}{Probleme}
   \begin{itemize}
-    \item immer mehr im Fokus von Viren/Malware/Phishing etc.
-    \item aber auch Diebstahl/Verlust
-    \item Zugriffsrechte von Apps (v.a. Jailbreak/Root)
+    \item<1-> immer mehr im Fokus von Viren/Malware/Phishing etc.
+    \item<2-> auch Diebstahl/Verlust
+    \item<3-> Zugriffsrechte von Apps (v.a. Jailbreak/Root)
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Online TSP}
-  \begin{itemize}
-    \item TSP: new requests arise while ``on the road''
-    \item adds \emph{time} as a new factor
-    \item not comparable with ``pure'' TSP
-    \item corresponding offline problem: \emph{TSP with release dates}
-  \end{itemize}
+\begin{frame}
+\movie[width=8cm,height=5cm,showcontrols=true]{bla}{sperrmuster_hack.mp4}
 \end{frame}
 
-\begin{frame}{TSP-RD}
-  \begin{block}{Definition: TSP-RD}
-    In a \alert{TSP with Release Dates}, find a round-trip tour stating at the origin, s.t. all cities are visited exactly once \emph{after their release date}.
-  \end{block}
-  Preliminaries:
-  \begin{itemize}
-    \item $n$ Cities; $N=\{1, ... ,n\}; i \in N $
-    \item Cities have a location ($l_i$) in a metric space.
-    \item Cities are revealed at their disclosure date ($q_i \ge 0$).
-    \item Cities are ready for service at their release date ($r_i \ge q_i$).
-    \item The service time at each city is 0.
-    \item The salesman travels at constant speed (1 unit of distance per unit of time) or is idle.
-    \item The problem begins at time 0 and the salesman is idle at the origin ($i=0$).
-  \end{itemize}
+\begin{frame}{}
+  \begin{center}
+    \structure{\Large Live Demo}
+  \end{center}
 \end{frame}
 
-\begin{frame}{TSP-RD on $\Bbb{R}^+$}
-  Consider cities with location in $\Bbb{R}^+$ (non-negative real line)
-
-  \vspace{5pt}
-  \begin{block}{Optimal Offline Algorithm}
-    \begin{enumerate}
-      \item Go directly to to city $l_{max} = max_{i \in N}\{l_i\}$.
-      \item Wait at city $l_{max}$ for $max_{i \in N}\{max\{0,r_i - 2l_{max}+l_i\}\}$.
-      \item Proceed directly back to the origin, visiting the cities.
-    \end{enumerate}
-  \end{block}
-
-  \begin{block}{Remark}
-    The offline algorithm can ignore the disclosure dates $q_i$, because it knows the data in advance!
-  \end{block}
-
-  $C_{OPT}(n) = 2l_{max} + max_{i \in N}\{max\{0,r_i - 2l_{max}+l_i\}\}$
-  \note{blackboard demo}
+\begin{frame}{Lösungen}
+	\begin{itemize}
+		\item<1-> so wenig sensible Daten am Gerät speichern wie möglich
+		\item<2-> PIN und Passwort verwenden
+		\item<3-> Gerät verschlüsseln
+		\item<4-> Apps genau auf Berechtigungen überprüfen
+		\item<5-> wenn möglich keine Apps unbekannter Herkunft installieren
+		\item<6-> kein freies WLAN verwenden
+		\item<7-> Fernlöschung aktivieren
+	\end{itemize}
 \end{frame}
-
-\begin{frame}{Online TSP-RD on $\Bbb{R}^+$}
-  Online algorithms
-  \begin{itemize}
-    \item need to consider disclosure dates $q_i$
-    \item don't know final value of $n$
-  \end{itemize}
-  \vspace{5pt}
-
-  \begin{block}<2->{Move-Right-If-Necessary Algorithm}
-    consider $q_i=r_i$
-    \begin{enumerate}
-      \item If there is an unserved city to the right, move toward it.
-      \item If there are no unserved cities to the right, move toward the origin.
-      \item Become idle at the origin.
-    \end{enumerate}
-  \end{block}
-
-  \begin{Theorem}<3->
-    $C_{MRIN}(n) \le \frac {3}{2} C_{OPT}(n), \forall n$.
-  \end{Theorem}
-
-  \note{blackboard demo}
-\end{frame}
-
-\begin{frame}{Online TSP-RD on $\Bbb{R}^+$}
-
-  \begin{block}{Move-Left-If-Beneficial Algorithm}
-    consider $q_i \le r_i$
-    \begin{enumerate}
-      \item If there is an unserved city to the right, move toward it.
-      \item If there are no unserved cities to the right, move toward the origin \alert{iff} we can visit all unserved cities on/after their release date; otherwise stay idle at the current position.
-      \item Become idle at the origin.
-    \end{enumerate}
-  \end{block}
-
-  \begin{block}{Remark}
-    If $q_i = r_i$, MLIB is indistinguishable from MRIN!\\
-    If $q_i = 0$, MLIB is indistinguishable from the offline algorithm!
-  \end{block}
-
-  \note{blackboard demo}
-\end{frame}
-
-\begin{frame}{Online TSP-RD on generic metric space}
-  Additions to the problem:
-  \begin{itemize}
-    \item locations in a generic metric space (e.g., Euclidean Plane)
-    \item distance function $d(\cdotp,\cdotp)$, 
-    \item Origin $o$
-    \item availability of a ``black box'' algorithm solving offline TSP-RD
-  \end{itemize}
-  \vspace{5pt}
-
-  \begin{block}{Plan-At-Home-with-disclosure-dates Algorithm}
-    \begin{enumerate}
-      \item Whenever at origin, follow a tour that serves all cities whose disclosure dates have passed.
-      \item If at time $q_i$ the server is at position $p$ and a new request arrives at location $x$, then
-      \begin{itemize}
-        \item if $d(x,o) > d(p,o)$, go back to origin, continue with (1).
-        \item if $d(x,o) \le d(p,o)$, ignore it.
-      \end{itemize}
-    \end{enumerate}
-  \end{block}
-\end{frame}
-
-\begin{frame}{PAH-dd}
-  \begin{Theorem}
-    Algorithm PAH-dd is 2-competitive
-  \end{Theorem}
-  \begin{Proof}
-    part. proof (for case 1);\\
-    $T$ is optimal tour length at time $q_n$ from ``black box'' alg.
-    \begin{small}
-    \begin{align}
-      C_{PAH-dd} & =  q_n + T \\
-		 &\le r_n + T \\
-		 &\le C_{OPT} + T \\
-		 &\le C_{OPT} + C_{OPT} \\
-		 &\le 2* C_{OPT}
-    \end{align}
-    \end{small}
-  \end{Proof}
-\end{frame}
-
-\begin{frame}{PAH-dd}
-  \begin{Proof}
-    part. proof (for case 2a);\\
-    $d(o,l_n)<d(o,p(q_n))$ \\
-    implies: arrive at $o$ before $q_n + d(o,l_n)$
-    \begin{small}
-    \begin{align}
-      C_{PAH-dd} &  < q_n + d(o,l_n) + T \\
-		 &\le r_n + d(o,l_n) + T \\
-		 &\le C_{OPT} + T \\
-		 &\le C_{OPT} + C_{OPT} \\
-		 &\le 2* C_{OPT}
-    \end{align}
-    \end{small}
-  \end{Proof}
-\end{frame}
-
-\begin{frame}{PAH-dd}
-  \begin{Proof}
-    part. proof (for case 2b) omitted
-  \end{Proof}
-
-  \begin{block}{Remark}
-    By assuming, that $q_i = r_i - a$, and $\alpha = \frac{a}{L_{TSP}}$, it can be shown, that PAH-dd is $(2-\frac{\alpha}{1+\alpha})$-competitive.\\
-    (This resolves to $a/L_{TSP}+a)$, thus with $a \sim L_{TSP}$ PAH-dd is $\frac{3}{2}$-competitive.
-  \end{block}
-\end{frame}
-
-\begin{frame}{TSP Competitiveness Examples}
-  For TSP without disclosure-dates $q_i \le r_i$
-  \begin{itemize}
-    \item on metric space: 2-competitive
-    \item polynomial on metric space: 2.78-competitive
-    \item on $\Bbb{R}$: 1.64-competitive
-    \item on $\Bbb{R}^+$: 1.5-competitive
-  \end{itemize}
-\end{frame} 
