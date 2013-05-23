@@ -1,0 +1,262 @@
+\section[VRP]{Vehicle Routing Problem}
+
+\begin{frame}{}
+  \begin{center}
+    \structure{\Large \insertsection}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Vehicle Routing Problem}
+
+  ``... service a number of customers with a fleet of vehicles.'' 
+  \hfill  {\tiny (Wikipedia) }\\
+  \vspace{5pt}
+  \begin{itemize}
+    \item e.g., delivering goods from a central depot
+    \item vehicle routes must be planned for delivery
+  \end{itemize}
+
+  \begin{center}
+    \only<1>{\vspace{2.55cm}}
+%    \includegraphics<2>[height=3cm]{images/VRP_setting.png}
+%    \includegraphics<3->[height=3cm]{images/VRP_solution.png}
+  \end{center}
+
+  \uncover<4>{
+    \begin{itemize}
+      \item<4> multi objective optimization:
+	\begin{itemize}
+	  \item optimize number of tours (reduce vehicles)
+	  \item optimize tour length (reduce variable costs)
+	\end{itemize}
+    \end{itemize}
+  }
+
+\end{frame}
+
+\begin{frame}{Vehicle Routing Problem}
+
+  \begin{itemize}
+    \item major problem in logistics \& transportation
+    \item extensions by additional constraints
+    \item<2-> common extensions: \\Vehicle Routing Problem \alert{with Time Windows and Capacity Constraints}
+      \begin{itemize}
+        \item customers can only be served within specified time windows
+	\item customers demand specific quantity
+	\item vehicles have (the same) maximum capacity
+      \end{itemize}
+    \item<3> online problem: 
+      \begin{itemize}
+        \item new requests arrive during execution of tours
+	\item update existing tours
+	\item create new tour
+      \end{itemize}
+  \end{itemize}
+   
+\end{frame}
+
+\begin{frame}{Online-VRP-TWCC}
+  Considering a practical implementation using Ant Colony Systems
+
+  \begin{block}{Ant Colony Optimization}
+    \alert{Ant Colony Optimization} is a nature inspired heuristic mimicking the behaviour of ants.
+  \end{block}
+  \begin{itemize}
+    \item Ants spread pheromones while travelling from food to nest
+    \item Short paths are travelled more often, leading to higher pheromone concentration
+    \item Ants follow pheromone traces more likely than other routes
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Ant Colony Systems}
+  \begin{itemize}
+    \item Ants decisions based on 
+    \begin{itemize}
+      \item global information (pheromone traces)
+      \item local information (ant knows its current neighbourhood)
+    \end{itemize}
+    \item decisions are probabilistic, not deterministic
+    \item start with initial solution (by some construction heuristic)
+    \item improve solution stepwise until termination
+    \item termination after iterations/time
+  \end{itemize}
+
+  \begin{Definition}
+    $\tau_{ij}(t)$\dots global pheromone value on arc $(i,j)$ at time $t$ \\ 
+    $\eta_{ij}$\dots local attractiveness (e.g., inverse distance)
+  \end{Definition}
+
+  \note{
+    TAU \\
+    ETA
+  }
+\end{frame}
+
+\begin{frame}{Ant Colony Systems}
+  Parameters:
+  \begin{itemize}
+    \item $q_0 \in [0,1]$\dots biasing towards intensification or diversification
+    \item $\beta$\dots control influence of local information
+  \end{itemize}
+  \vspace{5pt}
+  \uncover<2>{
+    Deciding, which way to go \dots
+    \begin{itemize}
+      \item for every neighbour $j \in N$, calculate value $x_j = \tau_{ij}*(\eta_{ij})^\beta$
+      \item choose random $q \in [0,1]$
+      \begin{itemize}
+	\item if $q \le q_0$: choose $l$, s.t. $x_l = max(x_j)$ (intensification)
+	\item if $q > q_0$: choose $l$ randomly with $p_j = \frac{x_j}{\sum_l(x_l)}$ (diversification)
+      \end{itemize}
+    \end{itemize}
+  }
+\end{frame}
+
+\begin{frame}{Ant Colony Systems}
+  Parameters:
+  \begin{itemize}
+    \item $\tau_0$\dots initial pheromone value
+    \item $\rho \in [0,1]$\dots evaporation factor
+  \end{itemize}
+  \vspace{5pt}
+  \uncover<2>{
+    Modifying pheromone values \dots
+    \begin{itemize}
+      \item local updates: applied directly after an ant traverses an arc\\
+	    $\tau_{ij}(t)=(1-\rho)\tau_{ij}(t) + \rho*\tau_0$
+      \item global updates: applied after iteration is evaluated\\
+	    $\tau_{ij}(t)=(1-\rho)\tau_{ij}(t) + \rho*\Delta$\\
+	    where $\Delta$ is derived from the current best solution.
+    \end{itemize}
+  }
+\end{frame}
+
+\begin{frame}{Solving DVRP-TWCC with ACS}
+  How to solve the DVRP-TWCC:
+  \begin{itemize}
+    \item multi objective optimization with multiple ACS
+    \item \emph{ACS-VEI}: reduce number of vehicles
+    \item \emph{ACS-TIME}: optimize tours found by ACS-VEI
+    \item use independent pheromone trails
+    \item share current best solution $\psi^{gb}$
+  \end{itemize}
+
+  \note{
+    PSI
+  }
+\end{frame}
+
+\begin{frame}{Solving DVRP-TWCC with ACS}
+  Basic algorithm:
+  \begin{itemize}
+    \item initialize $\psi^{gb}$ with a construction heuristic
+    \item try to improve it using both ACS:
+      \begin{itemize}
+        \item ACS-VEI: find feasible solution with one vehicle less than $\psi^{gb}$
+	\item ACS-TIME: optimize tour length of $\psi^{gb}$ using the same vehicles
+      \end{itemize}
+    \item update $\psi^{gb}$ on success
+    \item if number of vehicles is reduced, restart ACSs
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Solving DVRP-TWCC with ACS}
+  Artificial Ants:
+  \begin{itemize}
+    \item ants start at depot
+    \item move to unvisited node, considering TW and CC
+    \item attractiveness $\eta_{ij}$ by
+      \begin{itemize}
+        \item travelling time
+	\item time windows
+	\item number of times, node $j$ has not been visited (for ACS-VEI)
+      \end{itemize}
+    \item ant-solution might miss customers
+      \begin{itemize}
+        \item sort by decreasing demands
+	\item insert by shortest travel time
+	\item considering constraints
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Solving DVRP-TWCC with ACS}
+  Pheromone Values:
+  \begin{itemize}
+    \item $J^h_{\psi}$ \dots the length of initial solution by construction heuristic
+    \item $J^{gb}_{\psi}$ \dots the length of current best solution
+    \item $n$ \dots number of nodes
+    \item minimum pheromone values: $\tau_0 = \frac{1}{n*J^h_{\psi}}$
+    \item local updates: $\tau_{ij} = (1-\rho)*\tau_{ij} + \rho*\tau_0$\\
+    \item global update: $\tau_{ij} = (1-\rho)*\tau_{ij} + \frac{\rho}{n*J^{gb}_{\psi}}$\\	  
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Solving DVRP-TWCC with ACS}
+  Results:
+  \begin{itemize}
+    \item based on classic benchmarks
+    \item compare MACS-DVRP-TWCC with MACS-VRP-TWCC
+    \item Parameters: \\
+	  $n=100$ nodes\\
+	  $m=10$ ants\\
+	  $q_0=0.9$ (focus intensification)\\
+	  $\beta = 1$\\
+	  $\rho = 0.1$\\
+    
+  \end{itemize}
+\end{frame}
+\begin{frame}{Results}
+  \begin{center}
+
+  uniformly random customers\\
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    algorithm	& veh.	& dist.	& r.c.	\\
+    \hline
+    MACS-DVRP	& 14	& 1428	& 9	\\
+    MACS-DVRP	& 14	& 1508	& 12	\\
+    MACS-DVRP	& 15	& 1367	& 14	\\
+    \hline
+    MACS-VRP	& 13	& 1214	& x	\\
+    \hline
+  \end{tabular}
+  
+  \vspace{15pt}
+
+  clustered customers\\
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    algorithm	& veh.	& dist.	& r.c.	\\
+    \hline
+    MACS-DVRP	& 11	& 1218	& 9	\\
+    MACS-DVRP	& 12	& 1124	& 12	\\
+    MACS-DVRP	& 11	& 1278	& 14	\\
+    \hline
+    MACS-VRP	& 10	& 828	& x	\\
+    \hline
+  \end{tabular}
+  \end{center}
+
+\end{frame}
+
+\begin{frame}{MACS-DVRP-TWCC Conclusion}
+
+  MACS conclusion:
+  \begin{itemize}
+    \item not really online solution
+    \item basically a start-stop recalculation of multiple static VRPs
+    \item works, because ACS usually fast
+    \item ACS typically good for TSP
+  \end{itemize}
+
+\uncover<2>{
+  extension:
+  \begin{itemize}
+    \item divide time horizon $T$ (a day) in periods
+    \item accumulate requests, recalculate at end of period
+    \item solve problem as VRP with heterogenous starting points and capacities (according to current position and remaining capacity)
+  \end{itemize}
+}
+\end{frame} 
